@@ -10,11 +10,10 @@
 
     <h2>STAFF REGISTRATION</h2>
 
-    <input type="text" id="name" placeholder="Full Name">
+    <input type="text" id="name" placeholder="Name">
 
     <input type="email" id="email" placeholder="Email">
 
-    <!-- PASSWORD -->
     <input type="password" id="password" placeholder="Password">
 
     <label style="
@@ -31,7 +30,6 @@
         Show Password
     </label>
 
-    <!-- CONFIRM PASSWORD -->
     <input type="password" id="confirmPassword" placeholder="Verify Password">
 
     <label style="
@@ -49,87 +47,68 @@
     </label>
 
     <button onclick="register()">Register</button>
+    <p id="message" style="min-height:20px;font-size:14px;"></p>
 
     <p>
         Already have account?
-        <a href="login.html">Login</a>
+        <a href="index.html">Login</a>
     </p>
 
 </div>
 
 <script type="module">
 
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-
-import {
-    getAuth,
-    createUserWithEmailAndPassword
-}
-from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
-
-import {
-    getDatabase,
-    ref,
-    set
-}
-from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAhjwELYhK2fTYQ5rMQLOv8sfNlbnpREHA",
-  authDomain: "brewspot-dtr-system.firebaseapp.com",
-  databaseURL: "https://brewspot-dtr-system-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "brewspot-dtr-system",
-  storageBucket: "brewspot-dtr-system.firebasestorage.app",
-  messagingSenderId: "643659198322",
-  appId: "1:643659198322:web:b682e16d95c7501ce8f7eb"
-};
-
-const app = initializeApp(firebaseConfig);
-
-const auth = getAuth(app);
-const database = getDatabase(app);
+import { auth, database } from "./firebase.js";
+import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+import { ref, set } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
 
 window.register = async function(){
 
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
+    const messageEl = document.getElementById('message');
+
+    if(!name || !email || !password || !confirmPassword){
+        messageEl.textContent = "Please fill in all fields";
+        messageEl.style.color = "#b00020";
+        return;
+    }
 
     if(password !== confirmPassword){
-        alert("Passwords do not match");
+        messageEl.textContent = "Passwords do not match";
+        messageEl.style.color = "#b00020";
         return;
     }
 
     try{
-
-        const userCredential =
-        await createUserWithEmailAndPassword(
-            auth,
-            email,
-            password
-        );
-
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
         await set(ref(database, 'users/' + user.uid), {
-            name:name,
-            email:email,
-            role:"staff"
+            name: name,
+            email: email,
+            role: "staff",
+            setupComplete: false,
+            employeeId: "",
+            fingerprintEnrolled: false
         });
 
-        alert("Registration Successful");
+        messageEl.textContent = "Registration Complete";
+        messageEl.style.color = "#0a7a3d";
 
-        window.location = "login.html";
+        setTimeout(() => {
+            window.location = "index.html";
+        }, 1200);
 
     }catch(error){
-        alert(error.message);
+        messageEl.textContent = error.message;
+        messageEl.style.color = "#b00020";
     }
 
 }
 
-/* PASSWORD TOGGLE */
 window.togglePassword = function(){
     const pass = document.getElementById("password");
     pass.type = pass.type === "password" ? "text" : "password";

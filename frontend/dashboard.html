@@ -1,35 +1,330 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Staff Dashboard</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Staff Home</title>
+    <link rel="stylesheet" href="app.css">
 </head>
-<body>
+<body class="app-body">
 
-<div class="container">
+<header class="app-header">
+    <div class="brand">BREWSPOT CAFE</div>
+    <div class="profile-menu">
+        <button id="profileToggle" class="profile-button" type="button">👤</button>
+        <div id="profileDropdown" class="dropdown">
+            <button type="button" id="personalDetailsBtn">Personal details</button>
+            <button type="button" id="editProfileBtn">Change personal details</button>
+            <button type="button" id="logoutBtn">Logout</button>
+        </div>
+    </div>
+</header>
 
-    <h2>Staff Dashboard</h2>
+<main class="app-shell">
+    <div class="tabs">
+        <button type="button" class="tab-btn active" data-tab="timeKeyTab">TIME KEY</button>
+        <button type="button" class="tab-btn" data-tab="requestTab">REQUEST</button>
+        <button type="button" class="tab-btn" data-tab="payslipTab">PAYSLIP</button>
+    </div>
 
-    <p>
-        Welcome Staff
-    </p>
+    <section id="timeKeyTab" class="tab-panel active">
+        <h3>Time Key</h3>
+        <div class="table-wrap">
+            <table class="data-table" id="timeKeyTable">
+                <thead>
+                    <tr>
+                        <th>NAME</th>
+                        <th>AREA</th>
+                        <th>TIME IN</th>
+                        <th>TIME OUT</th>
+                        <th>WORK HRS</th>
+                        <th>EARLY OT</th>
+                        <th>OT</th>
+                        <th>REST DAY OT</th>
+                        <th>REGULAR HOL.</th>
+                        <th>SPECIAL HOL.</th>
+                        <th>TARDINESS</th>
+                        <th>UNDERTIME</th>
+                    </tr>
+                </thead>
+                <tbody id="timeKeyBody"></tbody>
+            </table>
+        </div>
+        <p id="timeKeyMessage" class="status-message"></p>
+    </section>
 
-    <button onclick="logout()">
-        Logout
-    </button>
+    <section id="requestTab" class="tab-panel">
+        <h3>Request</h3>
+        <form id="requestForm">
+            <div class="form-grid">
+                <input type="date" id="reqDate" required>
+                <input type="text" id="reqArea" placeholder="AREA" required>
+                <input type="time" id="reqTimeIn" required>
+                <input type="time" id="reqTimeOut" required>
+            </div>
+            <button type="submit" class="primary-btn">Submit</button>
+            <p id="requestMessage" class="status-message"></p>
+        </form>
+    </section>
 
-</div>
+    <section id="payslipTab" class="tab-panel">
+        <h3>Payslip</h3>
+        <div id="payslipContainer"></div>
+        <p id="payslipMessage" class="status-message"></p>
+    </section>
+</main>
 
-<script>
+<script type="module">
+import { auth, database } from "./firebase.js";
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+import { ref, get, push, set } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
 
-function logout(){
+const earningsRows = [
+    "STANDARD PAY",
+    "EARLY OVERTIME",
+    "OVERTIME",
+    "RESTDAY OT",
+    "REGULAR HOLIDAY",
+    "SPECIAL HOLIDAY",
+    "REGULAR HOLIDAY OT",
+    "SPECIAL HOLIDAY OT"
+];
 
-    localStorage.clear();
+const deductionsRows = ["UNDERTIME", "TARDINESS", "GRACEPERIOD"];
 
-    window.location = "login.html";
+const profileToggle = document.getElementById("profileToggle");
+const profileDropdown = document.getElementById("profileDropdown");
+const personalDetailsBtn = document.getElementById("personalDetailsBtn");
+const editProfileBtn = document.getElementById("editProfileBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+const requestForm = document.getElementById("requestForm");
 
+let currentUser = null;
+let currentUserData = {};
+
+function toNumber(value) {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : 0;
 }
 
+function formatCurrency(value) {
+    return `₱${toNumber(value).toFixed(2)}`;
+}
+
+function openTab(tabId) {
+    document.querySelectorAll(".tab-btn").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.tab === tabId);
+    });
+
+    document.querySelectorAll(".tab-panel").forEach((panel) => {
+        panel.classList.toggle("active", panel.id === tabId);
+    });
+}
+
+document.querySelectorAll(".tab-btn").forEach((btn) => {
+    btn.addEventListener("click", () => openTab(btn.dataset.tab));
+});
+
+profileToggle.addEventListener("click", () => {
+    profileDropdown.classList.toggle("open");
+});
+
+document.addEventListener("click", (event) => {
+    if (!event.target.closest(".profile-menu")) {
+        profileDropdown.classList.remove("open");
+    }
+});
+
+personalDetailsBtn.addEventListener("click", () => {
+    alert(`Name: ${currentUserData.name || ""}\nEmail: ${currentUserData.email || ""}\nEmployee ID: ${currentUserData.employeeId || ""}`);
+});
+
+editProfileBtn.addEventListener("click", () => {
+    alert("Change personal details is available soon.");
+});
+
+logoutBtn.addEventListener("click", async () => {
+    localStorage.clear();
+    await signOut(auth).catch(() => {});
+    window.location = "index.html";
+});
+
+requestForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    if (!currentUser) {
+        window.location = "index.html";
+        return;
+    }
+
+    const requestMessage = document.getElementById("requestMessage");
+
+    const payload = {
+        date: document.getElementById("reqDate").value,
+        area: document.getElementById("reqArea").value.trim(),
+        timeIn: document.getElementById("reqTimeIn").value,
+        timeOut: document.getElementById("reqTimeOut").value,
+        status: "pending",
+        createdAt: Date.now()
+    };
+
+    try {
+        const requestRef = push(ref(database, "requests/" + currentUser.uid));
+        await set(requestRef, payload);
+        requestMessage.textContent = "Request submitted successfully";
+        requestMessage.className = "status-message status-success";
+        requestForm.reset();
+    } catch (error) {
+        requestMessage.textContent = error.message;
+        requestMessage.className = "status-message status-error";
+    }
+});
+
+async function loadTimeRecords(uid) {
+    const body = document.getElementById("timeKeyBody");
+    const message = document.getElementById("timeKeyMessage");
+    body.innerHTML = "";
+
+    const recordsSnapshot = await get(ref(database, "timeRecords/" + uid));
+
+    if (!recordsSnapshot.exists()) {
+        message.textContent = "No time records found.";
+        message.className = "status-message";
+        return;
+    }
+
+    message.textContent = "";
+
+    recordsSnapshot.forEach((childSnapshot) => {
+        const row = childSnapshot.val() || {};
+        body.innerHTML += `
+            <tr>
+                <td>${row.name || currentUserData.name || ""}</td>
+                <td>${row.area || ""}</td>
+                <td>${row.timeIn || ""}</td>
+                <td>${row.timeOut || ""}</td>
+                <td>${row.workHrs || ""}</td>
+                <td>${row.earlyOt || ""}</td>
+                <td>${row.ot || ""}</td>
+                <td>${row.restDayOt || ""}</td>
+                <td>${row.regularHoliday || ""}</td>
+                <td>${row.specialHoliday || ""}</td>
+                <td>${row.tardiness || ""}</td>
+                <td>${row.undertime || ""}</td>
+            </tr>
+        `;
+    });
+}
+
+function buildRows(rows, dataset, leftHeader, amountHeader) {
+    let tableRows = "";
+
+    rows.forEach((key) => {
+        const node = dataset[key] || {};
+        const time = node.time || "0";
+        const amount = toNumber(node.amount);
+
+        tableRows += `
+            <tr>
+                <td>${key}</td>
+                <td>${time}</td>
+                <td>${formatCurrency(amount)}</td>
+            </tr>
+        `;
+    });
+
+    return `
+        <div class="table-wrap payslip-section">
+            <table class="data-table" style="min-width:600px;">
+                <thead>
+                    <tr>
+                        <th>${leftHeader}</th>
+                        <th>TIME</th>
+                        <th>${amountHeader}</th>
+                    </tr>
+                </thead>
+                <tbody>${tableRows}</tbody>
+            </table>
+        </div>
+    `;
+}
+
+async function loadPayslip(uid) {
+    const payslipMessage = document.getElementById("payslipMessage");
+    const container = document.getElementById("payslipContainer");
+
+    const payslipsSnapshot = await get(ref(database, "payslips/" + uid));
+
+    if (!payslipsSnapshot.exists()) {
+        container.innerHTML = "";
+        payslipMessage.textContent = "No payslip data available.";
+        return;
+    }
+
+    let latestCutoffId = null;
+    let latestCutoffValue = null;
+
+    payslipsSnapshot.forEach((child) => {
+        latestCutoffId = child.key;
+        latestCutoffValue = child.val();
+    });
+
+    const payslip = latestCutoffValue || {};
+    const earnings = payslip.earnings || {};
+    const deductions = payslip.deductions || {};
+
+    let grossPay = 0;
+    earningsRows.forEach((key) => {
+        grossPay += toNumber((earnings[key] || {}).amount);
+    });
+
+    let totalDeductions = 0;
+    deductionsRows.forEach((key) => {
+        totalDeductions += toNumber((deductions[key] || {}).amount);
+    });
+
+    const netPay = grossPay - totalDeductions;
+
+    container.innerHTML = `
+        <div class="payslip-head">
+            <div><strong>Cutoff Date:</strong> ${payslip.cutoffStart || ""} - ${payslip.cutoffEnd || latestCutoffId || ""}</div>
+            <div><strong>Name:</strong> ${currentUserData.name || ""}</div>
+            <div><strong>Email:</strong> ${currentUserData.email || ""}</div>
+            <div><strong>Days of work:</strong> ${payslip.daysOfWork || ""}</div>
+        </div>
+        ${buildRows(earningsRows, earnings, "EARNINGS", "COMPENSATION (AMOUNT COMPUTED)")}
+        <div class="totals"><strong>Gross Pay:</strong> ${formatCurrency(grossPay)}</div>
+        ${buildRows(deductionsRows, deductions, "DEDUCTIONS", "AMOUNT")}
+        <div class="totals"><strong>Total Deductions:</strong> ${formatCurrency(totalDeductions)}</div>
+        <div class="totals"><strong>Net Pay:</strong> ${formatCurrency(netPay)}</div>
+    `;
+
+    payslipMessage.textContent = "";
+}
+
+onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+        window.location = "index.html";
+        return;
+    }
+
+    const userSnapshot = await get(ref(database, "users/" + user.uid));
+    currentUserData = userSnapshot.val() || {};
+
+    if ((currentUserData.role || "staff") !== "staff") {
+        window.location = "admin.html";
+        return;
+    }
+
+    if (currentUserData.setupComplete !== true) {
+        window.location = "secondary-registration.html";
+        return;
+    }
+
+    currentUser = user;
+    localStorage.setItem("role", "staff");
+
+    await loadTimeRecords(user.uid);
+    await loadPayslip(user.uid);
+});
 </script>
 
 </body>

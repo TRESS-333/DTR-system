@@ -29,67 +29,77 @@
 
 <script type="module">
 
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+import { auth, database } from "./firebase.js";
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+import { ref, onValue, get } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
 
-import {
-    getDatabase,
-    ref,
-    onValue
+const localRole = localStorage.getItem("role");
+
+if(localRole === "staff"){
+    window.location = "dashboard.html";
 }
-from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAhjwELYhK2fTYQ5rMQLOv8sfNlbnpREHA",
-  authDomain: "brewspot-dtr-system.firebaseapp.com",
-  databaseURL: "https://brewspot-dtr-system-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "brewspot-dtr-system",
-  storageBucket: "brewspot-dtr-system.firebasestorage.app",
-  messagingSenderId: "643659198322",
-  appId: "1:643659198322:web:b682e16d95c7501ce8f7eb"
-};
+function loadAttendance(){
+    const attendanceRef = ref(database, 'attendance');
 
-const app = initializeApp(firebaseConfig);
+    onValue(attendanceRef, (snapshot)=>{
 
-const database = getDatabase(app);
+        const table = document.getElementById('attendanceTable');
 
-const attendanceRef = ref(database, 'attendance');
-
-onValue(attendanceRef, (snapshot)=>{
-
-    const table = document.getElementById('attendanceTable');
-
-    table.innerHTML = `
-        <tr>
-            <th>Name</th>
-            <th>Date</th>
-            <th>Time</th>
-            <th>Status</th>
-        </tr>
-    `;
-
-    snapshot.forEach((childSnapshot)=>{
-
-        const data = childSnapshot.val();
-
-        table.innerHTML += `
+        table.innerHTML = `
             <tr>
-                <td>${data.name}</td>
-                <td>${data.date}</td>
-                <td>${data.time}</td>
-                <td>${data.status}</td>
+                <th>Name</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Status</th>
             </tr>
         `;
 
+        snapshot.forEach((childSnapshot)=>{
+
+            const data = childSnapshot.val();
+
+            table.innerHTML += `
+                <tr>
+                    <td>${data.name || ""}</td>
+                    <td>${data.date || ""}</td>
+                    <td>${data.time || ""}</td>
+                    <td>${data.status || ""}</td>
+                </tr>
+            `;
+
+        });
+
     });
+}
 
-});
+if(localRole === "admin"){
+    loadAttendance();
+}else{
+    onAuthStateChanged(auth, async (user) => {
+        if(!user){
+            window.location = "index.html";
+            return;
+        }
 
-window.logout = function(){
+        const userSnapshot = await get(ref(database, "users/" + user.uid));
+        const userData = userSnapshot.val() || {};
+
+        if(userData.role !== "admin"){
+            window.location = "dashboard.html";
+            return;
+        }
+
+        loadAttendance();
+    });
+}
+
+window.logout = async function(){
 
     localStorage.clear();
+    await signOut(auth).catch(() => {});
 
-    window.location = "login.html";
+    window.location = "index.html";
 
 }
 
