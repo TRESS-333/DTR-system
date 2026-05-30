@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Staff Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+    <h2>Staff Dashboard</h2>
+
+    <p>
+        Welcome Staff
+    </p>
+
+    <button onclick="logout()">
+        Logout
+    </button>
+
+</div>
+
+<script>
+
+function logout(){
+
+    localStorage.clear();
+
+    window.location = "login.html";
+
+}
+
+</script>
+
+</body>
+</html>

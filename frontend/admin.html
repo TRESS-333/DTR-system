@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+    <h2>Admin Dashboard</h2>
+
+    <table border="1" width="100%" id="attendanceTable">
+
+        <tr>
+            <th>Name</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Status</th>
+        </tr>
+
+    </table>
+
+    <button onclick="logout()">
+        Logout
+    </button>
+
+</div>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+
+import {
+    getDatabase,
+    ref,
+    onValue
+}
+from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAhjwELYhK2fTYQ5rMQLOv8sfNlbnpREHA",
+  authDomain: "brewspot-dtr-system.firebaseapp.com",
+  databaseURL: "https://brewspot-dtr-system-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "brewspot-dtr-system",
+  storageBucket: "brewspot-dtr-system.firebasestorage.app",
+  messagingSenderId: "643659198322",
+  appId: "1:643659198322:web:b682e16d95c7501ce8f7eb"
+};
+
+const app = initializeApp(firebaseConfig);
+
+const database = getDatabase(app);
+
+const attendanceRef = ref(database, 'attendance');
+
+onValue(attendanceRef, (snapshot)=>{
+
+    const table = document.getElementById('attendanceTable');
+
+    table.innerHTML = `
+        <tr>
+            <th>Name</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Status</th>
+        </tr>
+    `;
+
+    snapshot.forEach((childSnapshot)=>{
+
+        const data = childSnapshot.val();
+
+        table.innerHTML += `
+            <tr>
+                <td>${data.name}</td>
+                <td>${data.date}</td>
+                <td>${data.time}</td>
+                <td>${data.status}</td>
+            </tr>
+        `;
+
+    });
+
+});
+
+window.logout = function(){
+
+    localStorage.clear();
+
+    window.location = "login.html";
+
+}
+
+</script>
+
+</body>
+</html>

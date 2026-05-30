@@ -1,0 +1,82 @@
+[debug] [2026-05-21T19:28:58.366Z] ----------------------------------------------------------------------
+[debug] [2026-05-21T19:28:58.370Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\HP-PC\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js projects:list
+[debug] [2026-05-21T19:28:58.371Z] CLI Version:   15.18.0
+[debug] [2026-05-21T19:28:58.371Z] Platform:      win32
+[debug] [2026-05-21T19:28:58.371Z] Node Version:  v24.15.0
+[debug] [2026-05-21T19:28:58.372Z] Time:          Fri May 22 2026 03:28:58 GMT+0800 (China Standard Time)
+[debug] [2026-05-21T19:28:58.372Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-05-21T19:28:58.384Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-05-21T19:28:58.385Z] > authorizing via signed-in user (thirdy.cmrp@gmail.com)
+[debug] [2026-05-21T19:28:58.392Z] Checked if tokens are valid: true, expires at: 1779394815761
+[debug] [2026-05-21T19:28:58.393Z] Checked if tokens are valid: true, expires at: 1779394815761
+[debug] [2026-05-21T19:28:58.395Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=1000
+[debug] [2026-05-21T19:28:58.458Z] *** [apiv2] error from fetch(https://firebase.googleapis.com/v1beta1/projects?pageSize=1000, {"headers":{},"method":"GET","signal":{"reason":""}}): FetchError: request to https://firebase.googleapis.com/v1beta1/projects?pageSize=1000 failed, reason: getaddrinfo ENOENT firebase.googleapis.com
+[debug] [2026-05-21T19:28:58.458Z] Failed to make request to https://firebase.googleapis.com/v1beta1/projects?pageSize=1000
+[debug] [2026-05-21T19:28:58.462Z] FirebaseError: Failed to make request to https://firebase.googleapis.com/v1beta1/projects?pageSize=1000
+    at RetryOperation._fn (C:\Users\HP-PC\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:282:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[error] 
+[error] Error: Failed to list Firebase projects. See firebase-debug.log for more info.
+[debug] [2026-05-21T19:32:49.828Z] ----------------------------------------------------------------------
+[debug] [2026-05-21T19:32:49.834Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\HP-PC\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js projects:list
+[debug] [2026-05-21T19:32:49.834Z] CLI Version:   15.18.0
+[debug] [2026-05-21T19:32:49.835Z] Platform:      win32
+[debug] [2026-05-21T19:32:49.835Z] Node Version:  v24.15.0
+[debug] [2026-05-21T19:32:49.835Z] Time:          Fri May 22 2026 03:32:49 GMT+0800 (China Standard Time)
+[debug] [2026-05-21T19:32:49.835Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-05-21T19:32:49.848Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-05-21T19:32:49.849Z] > authorizing via signed-in user (thirdy.cmrp@gmail.com)
+[debug] [2026-05-21T19:32:49.855Z] Checked if tokens are valid: true, expires at: 1779394815761
+[debug] [2026-05-21T19:32:49.856Z] Checked if tokens are valid: true, expires at: 1779394815761
+[debug] [2026-05-21T19:32:49.857Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=1000
+[debug] [2026-05-21T19:32:49.906Z] *** [apiv2] error from fetch(https://firebase.googleapis.com/v1beta1/projects?pageSize=1000, {"headers":{},"method":"GET","signal":{"reason":""}}): FetchError: request to https://firebase.googleapis.com/v1beta1/projects?pageSize=1000 failed, reason: getaddrinfo ENOENT firebase.googleapis.com
+[debug] [2026-05-21T19:32:49.907Z] Failed to make request to https://firebase.googleapis.com/v1beta1/projects?pageSize=1000
+[debug] [2026-05-21T19:32:49.909Z] FirebaseError: Failed to make request to https://firebase.googleapis.com/v1beta1/projects?pageSize=1000
+    at RetryOperation._fn (C:\Users\HP-PC\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:282:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[error] 
+[error] Error: Failed to list Firebase projects. See firebase-debug.log for more info.
+[debug] [2026-05-22T07:38:32.480Z] ----------------------------------------------------------------------
+[debug] [2026-05-22T07:38:32.485Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\HP-PC\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init hosting
+[debug] [2026-05-22T07:38:32.486Z] CLI Version:   15.18.0
+[debug] [2026-05-22T07:38:32.486Z] Platform:      win32
+[debug] [2026-05-22T07:38:32.486Z] Node Version:  v24.15.0
+[debug] [2026-05-22T07:38:32.486Z] Time:          Fri May 22 2026 15:38:32 GMT+0800 (China Standard Time)
+[debug] [2026-05-22T07:38:32.487Z] ----------------------------------------------------------------------
+[debug] 
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\HP-PC\OneDrive\Desktop\DTR_SYSTEM\frontend
+
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] 
+[debug] [2026-05-22T07:38:52.193Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-05-22T07:38:52.194Z] > authorizing via signed-in user (thirdy.cmrp@gmail.com)
+[debug] [2026-05-22T07:38:52.195Z] Checked if tokens are valid: false, expires at: 1779394815761
+[debug] [2026-05-22T07:38:52.196Z] Checked if tokens are valid: false, expires at: 1779394815761
+[debug] [2026-05-22T07:38:52.196Z] > refreshing access token with scopes: []
+[debug] [2026-05-22T07:38:52.200Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-05-22T07:38:52.201Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-05-22T07:38:52.691Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2026-05-22T07:38:52.692Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-05-22T07:38:52.725Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/brewspot-dtr-system [none]
+[debug] [2026-05-22T07:38:52.749Z] *** [apiv2] error from fetch(https://firebase.googleapis.com/v1beta1/projects/brewspot-dtr-system, {"headers":{},"method":"GET","signal":{"reason":""}}): FetchError: request to https://firebase.googleapis.com/v1beta1/projects/brewspot-dtr-system failed, reason: getaddrinfo ENOENT firebase.googleapis.com
+[debug] [2026-05-22T07:38:52.749Z] Failed to make request to https://firebase.googleapis.com/v1beta1/projects/brewspot-dtr-system (original: request to https://firebase.googleapis.com/v1beta1/projects/brewspot-dtr-system failed, reason: getaddrinfo ENOENT firebase.googleapis.com)
+[debug] [2026-05-22T07:38:52.751Z] FirebaseError: Failed to make request to https://firebase.googleapis.com/v1beta1/projects/brewspot-dtr-system
+    at RetryOperation._fn (C:\Users\HP-PC\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:282:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[error] 
+[error] Error: Failed to get Firebase project brewspot-dtr-system. Please make sure the project exists and your account has permission to access it.

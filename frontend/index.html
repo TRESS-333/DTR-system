@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+    <h2>BREWSPOT DTR SYSTEM</h2>
+
+    <input type="text" id="email" placeholder="Email">
+
+    <input type="password" id="password" placeholder="Password">
+
+    <!-- LEFT-ALIGNED CHECKBOX -->
+<label style="
+    display:flex;
+    justify-content:flex-start;
+    align-items:baseline;
+    gap:0px;
+    margin-top:0px;
+    font-size:15px;
+    width:10%;
+    white-space:nowrap;
+
+">
+    <input type="checkbox" onclick="togglePassword()">
+    Show Password
+</label>
+
+    <button onclick="login()">Login</button>
+
+    <p>
+        No account?
+        <a href="register.html">Register</a>
+    </p>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+
+import {
+    getAuth,
+    signInWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAhjwELYhK2fTYQ5rMQLOv8sfNlbnpREHA",
+  authDomain: "brewspot-dtr-system.firebaseapp.com",
+  databaseURL: "https://brewspot-dtr-system-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "brewspot-dtr-system",
+  storageBucket: "brewspot-dtr-system.firebasestorage.app",
+  messagingSenderId: "643659198322",
+  appId: "1:643659198322:web:b682e16d95c7501ce8f7eb"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+window.login = async function(){
+
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    // ADMIN LOGIN
+    if(email === "Administrator" && password === "Password"){
+        localStorage.setItem("role","admin");
+        window.location = "admin.html";
+        return;
+    }
+
+    try{
+        await signInWithEmailAndPassword(auth, email, password);
+
+        localStorage.setItem("role","staff");
+        window.location = "dashboard.html";
+
+    }catch(error){
+        alert(error.message);
+    }
+};
+
+// TOGGLE PASSWORD
+window.togglePassword = function(){
+    const pass = document.getElementById("password");
+
+    pass.type = pass.type === "password" ? "text" : "password";
+};
+
+</script>
+
+</body>
+</html>
