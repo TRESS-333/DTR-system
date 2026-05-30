@@ -14,7 +14,6 @@
 
     <input type="password" id="password" placeholder="Password">
 
-    <!-- LEFT-ALIGNED CHECKBOX -->
 <label style="
     display:flex;
     justify-content:flex-start;
@@ -41,32 +40,20 @@
 
 <script type="module">
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-
-import {
-    getAuth,
-    signInWithEmailAndPassword
-} from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAhjwELYhK2fTYQ5rMQLOv8sfNlbnpREHA",
-  authDomain: "brewspot-dtr-system.firebaseapp.com",
-  databaseURL: "https://brewspot-dtr-system-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "brewspot-dtr-system",
-  storageBucket: "brewspot-dtr-system.firebasestorage.app",
-  messagingSenderId: "643659198322",
-  appId: "1:643659198322:web:b682e16d95c7501ce8f7eb"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+import { auth, database } from "./firebase.js";
+import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+import { ref, get } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
 
 window.login = async function(){
 
-    const email = document.getElementById('email').value;
+    const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
 
-    // ADMIN LOGIN
+    if(!email || !password){
+        alert("Please enter email and password");
+        return;
+    }
+
     if(email === "Administrator" && password === "Password"){
         localStorage.setItem("role","admin");
         window.location = "admin.html";
@@ -74,20 +61,28 @@ window.login = async function(){
     }
 
     try{
-        await signInWithEmailAndPassword(auth, email, password);
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        const userRef = ref(database, 'users/' + user.uid);
+        const userSnapshot = await get(userRef);
+        const userData = userSnapshot.val() || {};
 
-        localStorage.setItem("role","staff");
-        window.location = "dashboard.html";
+        localStorage.setItem("role", userData.role || "staff");
+
+        if(userData.setupComplete === true){
+            window.location = "dashboard.html";
+            return;
+        }
+
+        window.location = "secondary-registration.html";
 
     }catch(error){
         alert(error.message);
     }
 };
 
-// TOGGLE PASSWORD
 window.togglePassword = function(){
     const pass = document.getElementById("password");
-
     pass.type = pass.type === "password" ? "text" : "password";
 };
 

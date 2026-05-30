@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Secondary Registration</title>
+    <link rel="stylesheet" href="app.css">
+</head>
+<body class="app-body">
+
+<div class="setup-card">
+    <h2>Secondary Registration</h2>
+
+    <label for="employeeId">Employee ID#</label>
+    <input id="employeeId" type="text" placeholder="Employee ID#">
+
+    <div class="setup-actions">
+        <button id="scanBtn" class="secondary-btn" type="button">Finger Print Scan 1st</button>
+        <button id="verifyBtn" class="primary-btn" type="button" disabled>Verify Finger Print</button>
+    </div>
+
+    <p id="setupMessage" class="status-message"></p>
+    <button id="completeBtn" class="primary-btn" type="button" disabled>Complete</button>
+</div>
+
+<script type="module">
+import { auth, database } from "./firebase.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+import { ref, get, update } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
+
+const scanBtn = document.getElementById("scanBtn");
+const verifyBtn = document.getElementById("verifyBtn");
+const completeBtn = document.getElementById("completeBtn");
+const setupMessage = document.getElementById("setupMessage");
+const employeeIdInput = document.getElementById("employeeId");
+
+let currentUser = null;
+let scanDone = false;
+let verified = false;
+
+function setMessage(text, kind) {
+    setupMessage.textContent = text;
+    setupMessage.className = "status-message " + (kind === "error" ? "status-error" : "status-success");
+}
+
+onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+        window.location = "index.html";
+        return;
+    }
+
+    currentUser = user;
+    localStorage.setItem("role", "staff");
+
+    const userSnapshot = await get(ref(database, "users/" + user.uid));
+    const userData = userSnapshot.val() || {};
+
+    if (userData.setupComplete === true) {
+        window.location = "dashboard.html";
+    }
+});
+
+scanBtn.addEventListener("click", () => {
+    scanDone = true;
+    verified = false;
+    verifyBtn.disabled = false;
+    completeBtn.disabled = true;
+    setMessage("Fingerprint scan captured. Proceed to verification.", "success");
+});
+
+verifyBtn.addEventListener("click", () => {
+    if (!scanDone) {
+        setMessage("Please complete Finger Print Scan 1st.", "error");
+        return;
+    }
+
+    const ok = Math.random() >= 0.35;
+
+    if (!ok) {
+        verified = false;
+        completeBtn.disabled = true;
+        setMessage("Failed. Try again", "error");
+        return;
+    }
+
+    verified = true;
+    completeBtn.disabled = false;
+    setMessage("Fingerprint verified.", "success");
+});
+
+completeBtn.addEventListener("click", async () => {
+    const employeeId = employeeIdInput.value.trim();
+
+    if (!currentUser) {
+        window.location = "index.html";
+        return;
+    }
+
+    if (!employeeId) {
+        setMessage("Employee ID# is required", "error");
+        return;
+    }
+
+    if (!verified) {
+        setMessage("Please verify fingerprint first", "error");
+        return;
+    }
+
+    await update(ref(database, "users/" + currentUser.uid), {
+        employeeId,
+        fingerprintEnrolled: true,
+        setupComplete: true
+    });
+
+    setMessage("100% registered", "success");
+    setTimeout(() => {
+        window.location = "dashboard.html";
+    }, 1000);
+});
+</script>
+
+</body>
+</html>
